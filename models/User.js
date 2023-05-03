@@ -23,7 +23,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide password'],
     minlength: 6,
-    select: false,
   },
 });
 
@@ -34,6 +33,10 @@ UserSchema.pre('save', async function () {
 
 UserSchema.methods.CreateJWT = function () {
   return jwt.sign({ userId: this._id, name: this.name }, process.env.JTW_SECRET, { expiresIn: process.env.JWT_LIFETIME })
-}
+};
+
+UserSchema.methods.comparePassword = async function (candidate) {
+  return await bcrypt.compare(candidate, this.password);
+};
 
 module.exports = mongoose.model('User', UserSchema);
